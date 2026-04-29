@@ -1,4 +1,4 @@
-﻿// var people = [
+// var DEFAULT_PEOPLE = [
 //   { id: 1,  name: 'Alice Johnson',   phone: '2025550101',  country: 'USA',          age: 28, email: 'alice@example.com',   status: 'active'   },
 //   { id: 2,  name: 'Carlos Mendes',   phone: '11987654321', country: 'Brazil',       age: 34, email: 'carlos@example.com',  status: 'inactive' },
 //   { id: 3,  name: 'Fatima Al-Zahra', phone: '501234567',   country: 'Saudi Arabia', age: 25, email: 'fatima@example.com',  status: 'active'   },
@@ -11,10 +11,15 @@
 //   { id: 10, name: 'Emma Dupont',     phone: '123456789',   country: 'France',       age: 33, email: 'emma@example.com',    status: 'active'   },
 // ];
 
-// var nextId        = 11;
+// var people        = JSON.parse(localStorage.getItem('people')) || DEFAULT_PEOPLE;
+// var nextId        = people.length > 0 ? Math.max.apply(null, people.map(function(p) { return p.id; })) + 1 : 11;
 // var currentFilter = 'all';
 // var editingId     = null;
 // var bsModal       = null;
+
+// function savePeople() {
+//   localStorage.setItem('people', JSON.stringify(people));
+// }
 
 // function render() {
 //   var tbody = document.getElementById('peopleTableBody');
@@ -58,7 +63,33 @@
 //   var email   = document.getElementById('personEmail').value.trim();
 
 //   if (!name) {
-//     alert('Please enter a full name.');
+//     alert('put task name first');
+//     return;
+//   }
+
+//   if (!phone) {
+//     alert('put phone number first');
+//     return;
+//   }
+
+//   if (!country) {
+//     alert('put country first');
+//     return;
+//   }
+
+//   if (isNaN(age)) {
+//     alert('put age first');
+//     return;
+//   }
+
+//   if (!email) {
+//     alert('put email first');
+//     return;
+//   }
+
+//   var duplicate = people.some(function(p) { return p.name.toLowerCase() === name.toLowerCase(); });
+//   if (duplicate) {
+//     alert('this task name already exist please change name ');
 //     return;
 //   }
 
@@ -78,11 +109,13 @@
 //   document.getElementById('personAge').value     = '';
 //   document.getElementById('personEmail').value   = '';
 
+//   savePeople();
 //   render();
 // }
 
 // function deletePerson(id) {
 //   people = people.filter(function(p) { return p.id !== id; });
+//   savePeople();
 //   render();
 // }
 
@@ -90,6 +123,7 @@
 //   var person = people.find(function(p) { return p.id === id; });
 //   if (person) {
 //     person.status = person.status === 'active' ? 'inactive' : 'active';
+//     savePeople();
 //     render();
 //   }
 // }
@@ -128,6 +162,12 @@
 //     return;
 //   }
 
+//   var duplicate = people.some(function(p) { return p.id !== editingId && p.name.toLowerCase() === name.toLowerCase(); });
+//   if (duplicate) {
+//     alert('this task name already exist please change name ');
+//     return;
+//   }
+
 //   var person = people.find(function(p) { return p.id === editingId; });
 //   if (person) {
 //     person.name    = name;
@@ -137,7 +177,16 @@
 //     person.email   = email;
 //   }
 
+//   savePeople();
 //   closeModal();
+//   render();
+// }
+
+
+// function clearPeople() {
+//   people = [];
+//   nextId = 1;
+//   localStorage.setItem('people', '[]');
 //   render();
 // }
 
@@ -161,5 +210,14 @@
 //     .replace(/>/g, '&gt;')
 //     .replace(/"/g, '&quot;');
 // }
+
+
+// document.addEventListener('DOMContentLoaded', function() {
+//   ['personName', 'personPhone', 'personCountry', 'personAge', 'personEmail'].forEach(function(id) {
+//     document.getElementById(id).addEventListener('keydown', function(e) {
+//       if (e.key === 'Enter') addPerson();
+//     });
+//   });
+// });
 
 // render();
