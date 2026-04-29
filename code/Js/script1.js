@@ -1,4 +1,4 @@
-﻿let tasks = [
+﻿const DEFAULT_TASKS = [
   { id: 1,  name: 'Gym',     desc: 'Play cardio',           status: 'completed' },
   { id: 2,  name: 'Cinema',  desc: 'Watch movie',           status: 'waiting'   },
   { id: 3,  name: 'Study',   desc: 'Do math homework',      status: 'completed' },
@@ -11,10 +11,17 @@
   { id: 10, name: 'Walk',    desc: 'Evening walk 5km',      status: 'waiting'   },
 ];
 
-let nextId        = 11;
+let tasks = JSON.parse(localStorage.getItem('tasks')) || DEFAULT_TASKS;
+
+let nextId        = tasks.length > 0 ? Math.max(...tasks.map(function(t) { return t.id; })) + 1 : 11;
 let currentFilter = 'all';
 let editingId     = null;
 let bsModal       = null;
+
+// Save to localStorage
+function saveTasks() {
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
 
 // Render
 function render() {
@@ -54,19 +61,32 @@ function addTask() {
   var desc = document.getElementById('taskDesc').value.trim();
 
   if (!name) {
-    alert('Please enter a task name.');
+    alert('put task name first');
+    return;
+  }
+
+  if (!desc) {
+    alert('put task desciption first');
+    return;
+  }
+
+  var duplicate = tasks.some(function(t) { return t.name.toLowerCase() === name.toLowerCase(); });
+  if (duplicate) {
+    alert('this task name already exist please change name ');
     return;
   }
 
   tasks.push({ id: nextId++, name: name, desc: desc, status: 'waiting' });
   document.getElementById('taskName').value = '';
   document.getElementById('taskDesc').value = '';
+  saveTasks();
   render();
 }
 
 // Delete Task
 function deleteTask(id) {
   tasks = tasks.filter(function(t) { return t.id !== id; });
+  saveTasks();
   render();
 }
 
@@ -75,6 +95,7 @@ function toggleStatus(id) {
   var task = tasks.find(function(t) { return t.id === id; });
   if (task) {
     task.status = task.status === 'completed' ? 'waiting' : 'completed';
+    saveTasks();
     render();
   }
 }
@@ -107,12 +128,27 @@ function saveEdit() {
     return;
   }
 
+  var duplicate = tasks.some(function(t) { return t.id !== editingId && t.name.toLowerCase() === name.toLowerCase(); });
+  if (duplicate) {
+    alert('this task name already exist please change name ');
+    return;
+  }
+
   var task = tasks.find(function(t) { return t.id === editingId; });
   if (task) {
     task.name = name;
     task.desc = desc;
   }
+  saveTasks();
   closeModal();
+  render();
+}
+
+// Clear All Tasks
+function clearTasks() {
+  tasks = [];
+  nextId = 1;
+  localStorage.setItem('tasks', '[]');
   render();
 }
 
@@ -137,6 +173,16 @@ function escHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+
+// Press Enter to add task
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('taskName').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addTask();
+  });
+  document.getElementById('taskDesc').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addTask();
+  });
+});
 
 // Initial Render
 render();
